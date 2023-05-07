@@ -1,25 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ChakraProvider,
-  Box,
+  Container,
+  Heading,
   Text,
-  Link,
-  VStack,
-  Code,
-  Grid,
   theme,
-  Card, CardHeader, CardBody, CardFooter, Container, Heading 
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
-import { Logo } from './Logo';
 
 function App() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function getData() {
+      const response = await fetch('https://api.tfl.gov.uk/BikePoint/');
+      const data = await response.json();
+      setData(data);
+    }
+    getData();
+  }, []);
+
   return (
     <ChakraProvider theme={theme}>
       <Container>
-        <ColorModeSwitcher></ColorModeSwitcher>
+        <ColorModeSwitcher />
         <Heading>SamTFLApp</Heading>
         <Text>An app that uses the TFL API.</Text>
+        {data.map(datapoint => {
+          return (
+            <div key={datapoint.id}>
+              <Heading as="h2" size="md">
+                {datapoint.commonName}
+              </Heading>
+              <Text>{datapoint.lat}</Text>
+              <Text>{datapoint.lon}</Text>
+            </div>
+          );
+        })}
       </Container>
     </ChakraProvider>
   );
