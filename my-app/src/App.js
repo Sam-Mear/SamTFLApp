@@ -12,9 +12,10 @@ import {
   InfoBox,
   Marker,
   useLoadScript,
+  HeatmapLayer,
 } from '@react-google-maps/api';
 
-const libraries = ['places'];
+const libraries = ['places', 'visualization'];
 const mapContainerStyle = {
   height: '500px',
   width: '100%',
@@ -29,6 +30,7 @@ const options = {
 
 function App() {
   const [data, setData] = useState([]);
+  const [accidentData, setAccidentData] = useState([]);
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -42,8 +44,22 @@ function App() {
       const data = await response.json();
       setData(data);
     }
+    async function getAccidents() {
+      const response2 = await fetch('https://api.tfl.gov.uk/AccidentStats/2019');
+      const accidentData = await response2.json();
+      setAccidentData(accidentData);
+    }
     getData();
+    getAccidents();
   }, []);
+
+  const pedalCycleAccidents = accidentData.filter(accident => {
+    return accident.vehicles.some(vehicle => vehicle.type === "PedalCycle");
+  });
+  
+  const pedalCycleAccidentCoords = pedalCycleAccidents.map(accident => {
+    return { location: new window.google.maps.LatLng(accident.lat, accident.lon), weight: 1 };
+  });
 
   if (loadError) return 'Error loading maps';
   if (!isLoaded) return 'Loading maps...';
@@ -54,6 +70,7 @@ function App() {
         <ColorModeSwitcher />
         <Heading>SamTFLApp</Heading>
         <Text>An app that uses the TFL API.</Text>
+        <Heading as='h4' size='md'>Bike locations</Heading>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           zoom={10}
@@ -94,6 +111,17 @@ function App() {
               </div>
             </InfoBox>
           )}
+        </GoogleMap>
+        <Heading as='h4' size='md'>Bike accident heat map (2019 data)</Heading>
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          zoom={10}
+          center={center}
+          options={options}
+        >
+          <HeatmapLayer 
+            data={pedalCycleAccidentCoords}
+          />
         </GoogleMap>
       </Container>
     </ChakraProvider>
