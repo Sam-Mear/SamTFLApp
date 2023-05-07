@@ -7,12 +7,34 @@ import {
   theme,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
-import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
+import {
+  GoogleMap,
+  InfoBox,
+  Marker,
+  useLoadScript,
+} from '@react-google-maps/api';
 
-
+const libraries = ['places'];
+const mapContainerStyle = {
+  height: '500px',
+  width: '100%',
+};
+const center = {
+  lat: 51.507602,
+  lng: -0.127816,
+};
+const options = {
+  disableDefaultUI: false,
+};
 
 function App() {
   const [data, setData] = useState([]);
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => {
     async function getData() {
@@ -23,37 +45,8 @@ function App() {
     getData();
   }, []);
 
-  const Map = withGoogleMap(() => (
-    /*if (typeof google === 'undefined') {
-      return null;
-    }*/
-    <GoogleMap
-      defaultZoom={10}
-      defaultCenter={{ lat: 51.507602, lng: -0.127816 }}
-    >
-      {data.map(datapoint => (
-        <Marker
-          key={datapoint.id}
-          position={{
-            lat: datapoint.lat,
-            lng: datapoint.lon
-          }}
-          icon={{
-            url: `http://www.sammear.co.uk/Images/instagram.png`,
-            scaledSize: new window.google.maps.Size(30, 30)
-          }}
-        />
-        ))}
-    </GoogleMap>
-  ));
-
-  const WrappedMap = () => (
-    <Map
-      containerElement={<div style={{ height: `500px` }} />}
-      mapElement={<div style={{ height: `100%` }} />}
-    />
-  );
-  
+  if (loadError) return 'Error loading maps';
+  if (!isLoaded) return 'Loading maps...';
 
   return (
     <ChakraProvider theme={theme}>
@@ -61,25 +54,50 @@ function App() {
         <ColorModeSwitcher />
         <Heading>SamTFLApp</Heading>
         <Text>An app that uses the TFL API.</Text>
-        <WrappedMap />
-        {data.map(datapoint => {
-          return (
-            <div key={datapoint.id}>
-              <Heading as="h2" size="md">
-                {datapoint.commonName}
-              </Heading>
-              <Text>{datapoint.id}</Text>
-              <Text>{datapoint.lat}</Text>
-              <Text>{datapoint.lon}</Text>
-            </div>
-          );
-        })}
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          zoom={10}
+          center={center}
+          options={options}
+        >
+          {data.map((datapoint) => (
+            <Marker
+              key={datapoint.id}
+              position={{
+                lat: datapoint.lat,
+                lng: datapoint.lon,
+              }}
+              onClick={() => {
+                setSelected(datapoint);
+              }}
+            />
+          ))}
+
+          {/*Render an InfoBox component when a Marker is selected*/}
+          {selected && (
+            <InfoBox
+              position={{
+                lat: selected.lat,
+                lng: selected.lon,
+              }}
+              onCloseClick={() => {
+                setSelected(null);
+              }}
+            >
+              <div style={{ backgroundColor: "black" }}>
+                <Heading as="h2" size="md">
+                  {selected.commonName}
+                </Heading>
+                <Text>{selected.id}</Text>
+                <Text>{selected.additionalProperties.find(prop => prop.key === 'NbBikes').value} bike(s) available</Text>
+                <Text>Last updated: {selected.additionalProperties.find(prop => prop.key ==='NbBikes').modified}</Text>
+              </div>
+            </InfoBox>
+          )}
+        </GoogleMap>
       </Container>
     </ChakraProvider>
   );
-  
 }
-
-
 
 export default App;
