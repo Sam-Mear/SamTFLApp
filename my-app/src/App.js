@@ -112,7 +112,7 @@ function App() {
                     setSelected(null);
                   }}
                 >
-                  <div style={{ backgroundColor: "black" }}>
+                  <div style={{ backgroundColor: "#f70" }}>
                     <Heading as="h2" size="md">
                       {selected.commonName}
                     </Heading>
