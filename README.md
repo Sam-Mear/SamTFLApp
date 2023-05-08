@@ -1,10 +1,10 @@
 # SamTFLApp
 Transport for London API App
-
-TODO : 
-1. put bikepoints on a map(https://api.tfl.gov.uk/BikePoint/) DONE
-2. add extra info on click(https://api.tfl.gov.uk/BikePoint/BikePoints_121) DONE, extra API call not needed.
-3. bike accidents heat map (https://api.tfl.gov.uk/AccidentStats/2010), sometimes works
+Made roughly in a day for a job interview. It is make with React(First time using/learning for me). Also using Chakra for react but I dont think I really used it enough as I was only aiming for functionality. I only wanted some familiarity with Chakra.
+### What it does:
+* Displays BikePoint information on a google map
+    * On click, displays how many bikes are available and last time this information was updated.
+* Displays a heat map of accidents involving a bicycle
 
 ## Running locally
 1. Make sure you have you google maps API javascript key in my-app/.env.local like so
