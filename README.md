@@ -7,6 +7,9 @@ Made roughly in a day for a job interview. It is make with React(First time usin
     * On click, displays how many bikes are available and last time this information was updated.
 * Displays a heat map of accidents involving a bicycle
 
+### Video for the lazy:
+[![Video of app linking to youtube](https://img.youtube.com/vi/cV3_hjBqIyI/0.jpg)](https://www.youtube.com/watch?v=cV3_hjBqIyI)
+
 ## Running locally
 1. Make sure you have you google maps API javascript key in my-app/.env.local like so
 `REACT_APP_GOOGLE_MAPS_API_KEY=your_api_key_here`
